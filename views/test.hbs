@@ -1,0 +1,98 @@
+<style type="text/css">
+   .users{
+       width: 28%;
+       border: 1px solid;
+       float: left;
+       height: 100vh;
+   }
+   .mess {
+        float: left;
+        width: 70%;
+        border: 1px solid;
+        height: 100vh;
+    }
+    .message{
+        position: fixed;
+        bottom: 0;
+    }
+    .selected{
+        color:red;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<div id="showAfterName" style="display:none">
+        <h3>Chat Application</h3>
+        <div class="users">
+           <p>Users: </p>
+            <ul id="user">
+                
+            </ul> 
+        </div>
+        <div class="mess">
+            <p>Chat: </p>
+            <ul id="message">
+                
+            </ul>
+            <input type="text" name="name" id="mess" autocomplete="off" class="message"/>
+        </div>
+    </div>
+    <div id="nameTake">
+        Name: <input type="text" id="name" autocomplete="off"/>
+    </div>
+    
+<script type="text/javascript">
+    var socket = io.connect();
+    var name = ''; 
+    var selected = '';
+    $(document).ready(function(){
+        socket.on('init',function(data){
+            console.log(data.res);
+        })
+        
+        socket.on('receive',function(data){
+           appendMess(data.name,data.mess);
+           //$('#message').append('<li>'+data.name+' : '+data.mess+'</li>');
+        })
+        
+        socket.on('users',function(data){
+            console.log(data);
+           $('#user').empty();
+           $.each(data,function(v,r){
+               $('#user').append('<li><span class="userChat" data-id="'+v+'">'+r+'</span></li>');
+           })
+        })
+        
+        $('#name').keypress(function(e) {
+            if(e.which == 13) {
+                name = $('#name').val();
+                $('#nameTake').hide();
+                $('#showAfterName').show();
+                socket.emit('addUser',{user:name});
+            }
+        });
+        
+        $('#mess').keypress(function(e) {
+            callPerform(e);
+        });
+        
+        $(document).on('click','.userChat',function(){
+            $('.userChat').removeClass('selected');
+            $(this).addClass('selected');
+            selected = $(this).data('id');
+        })
+        
+        function callPerform(e){
+            var val = $('#mess').val();
+            if(e.which == 13) {
+                appendMess(name,val);
+                socket.emit('send',{message:val,id:selected});
+                $('#mess').val('');
+            }
+        }
+        
+        function appendMess(name,message){
+            $('#message').append('<li>'+name+' : '+message+'</li>');
+        }
+    })
+</script>
