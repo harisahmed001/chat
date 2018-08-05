@@ -9,11 +9,13 @@ var mongoose = require("mongoose");
 var socketio = require('socket.io')();
 var passport = require("passport");
 var expressSession = require("express-session");
+var restrict = require("./auth/restrict");
+var flash = require("connect-flash");
 
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var testRouter = require('./routes/test');
+var chatRouter = require('./routes/chat');
 
 var passportConfig = require("./auth/passport-config");
 passportConfig();
@@ -44,12 +46,14 @@ app.use(expressSession(
   }
 ));
 
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/test', testRouter);
+//app.use(restrict);
+app.use('/chat', chatRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

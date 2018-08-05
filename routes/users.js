@@ -11,6 +11,7 @@ router.get('/', function(req, res, next) {
 router.get('/login', function(req, res, next) {
   res.render('login',{layout: 'custom'});
 });
+/*
 router.post('/loginn', function(req, res, next) {
   var obj = {
       email: req.body.email,
@@ -34,7 +35,7 @@ router.post('/loginn', function(req, res, next) {
       //return res.redirect('/');
   })
 });
-
+*/
 
 router.get('/register', function(req, res, next) {
   res.render('register',{layout: 'custom'});
@@ -51,8 +52,12 @@ router.post('/register', function(req, res, next) {
         obj['layout'] = 'custom';
         return res.render('register',obj);
       }
+      
+      req.login(req.body,function(err){
+        return res.redirect('/');
+      });
       //return res.redirect('/users/register');
-      return res.redirect('/');
+      //return res.redirect('/');
   })
 });
 
@@ -93,10 +98,11 @@ router.get('/update', function(req, res, next) {
   })
 });
 
-router.post('/login', passport.authenticate('local'), function(req, res, next) {
-  return res.redirect('/');
-  //req.isAuthnticated();
-})
+router.post('/login', passport.authenticate('local',{ 
+  failureRedirect:'/', 
+  successRedirect:'/chat',
+  failureFlash:'Invalid Credentials'
+}));
 
 router.get('/logout', function(req, res, next) {
   req.logout();

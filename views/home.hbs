@@ -1,11 +1,12 @@
 <h1>Home Page</h1>
-
+{{err}}
 {{#unless  user}}
     <a href="/users/login">Login</a><br>
     <a href="/users/register">Register</a><br>
 {{/unless }}
 
 {{#if user}}
-    Hi, {{user.email}}<br>
+    Hi, {{user.name}}<br>
+    <a href="/chat">Chats</a><br>
     <a href="/users/logout">Logout</a><br>
 {{/if}}

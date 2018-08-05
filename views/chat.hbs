@@ -21,33 +21,36 @@
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-<div id="showAfterName" style="display:none">
-        <h3>Chat Application</h3>
-        <div class="users">
-           <p>Users: </p>
-            <ul id="user">
-                
-            </ul> 
-        </div>
-        <div class="mess">
-            <p>Chat: </p>
-            <ul id="message">
-                
-            </ul>
-            <input type="text" name="name" id="mess" autocomplete="off" class="message"/>
-        </div>
+<div id="showAfterName">
+    <h3>Chat Application</h3>
+    <div class="users">
+       <p>Users: </p>
+        <ul id="user">
+            
+        </ul> 
     </div>
-    <div id="nameTake">
-        Name: <input type="text" id="name" autocomplete="off"/>
+    <div class="mess">
+        <p>Chat: </p>
+        <ul id="message">
+            
+        </ul>
+        <input type="text" name="name" id="mess" autocomplete="off" class="message"/>
     </div>
-    
+</div>
+<!--
+<div id="nameTake">
+    Name: <input type="text" id="name" autocomplete="off"/>
+</div>
+-->
 <script type="text/javascript">
     var socket = io.connect();
-    var name = ''; 
+    var name = '{{user.name}}'; 
+    var id = '{{user._id}}'; 
     var selected = '';
+    var selected_uid = '';
     $(document).ready(function(){
         socket.on('init',function(data){
-            console.log(data.res);
+            socket.emit('addUser', { name: name, id: id });
         })
         
         socket.on('receive',function(data){
@@ -56,13 +59,14 @@
         })
         
         socket.on('users',function(data){
-            console.log(data);
+           console.log(data);
            $('#user').empty();
            $.each(data,function(v,r){
-               $('#user').append('<li><span class="userChat" data-id="'+v+'">'+r+'</span></li>');
+               if(r.id!='{{user._id}}')
+                $('#user').append('<li><span class="userChat" data-id="'+v+'" data-uid="'+r.id+'">'+r.name+'</span></li>');
            })
         })
-        
+        /*
         $('#name').keypress(function(e) {
             if(e.which == 13) {
                 name = $('#name').val();
@@ -71,6 +75,7 @@
                 socket.emit('addUser',{user:name});
             }
         });
+        */
         
         $('#mess').keypress(function(e) {
             callPerform(e);
@@ -80,13 +85,14 @@
             $('.userChat').removeClass('selected');
             $(this).addClass('selected');
             selected = $(this).data('id');
+            selected_uid = $(this).data('uid');
         })
         
         function callPerform(e){
             var val = $('#mess').val();
             if(e.which == 13) {
                 appendMess(name,val);
-                socket.emit('send',{message:val,id:selected});
+                socket.emit('send',{message: val, id: selected, from_id: selected_uid });
                 $('#mess').val('');
             }
         }

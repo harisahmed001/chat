@@ -3,8 +3,9 @@ var Schema = mongoose.Schema;
 
 var chatSchema = new Schema({
     chat: String,
-    from: String,
-    //created: {type:Date, value:Date.now()}
+    from_id: String,
+    to_id: String,
+    created: {type:Date, default:Date.now}
 });
 
 var Chat = mongoose.model('Chat',chatSchema);
